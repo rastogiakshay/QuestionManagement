@@ -10,11 +10,12 @@ import lombok.Getter;
 
 @Getter
 public class HttpErrors {
-	
+
 	private String errorMessage;
 	private List<String> errorDetails;
 	private HttpStatus errorStatus;
 	private LocalDateTime errorTime;
+
 	public HttpErrors(String errorMessage, List<String> errorDetails, HttpStatus errorStatus, LocalDateTime errorTime) {
 		super();
 		this.errorMessage = errorMessage;
@@ -22,7 +23,5 @@ public class HttpErrors {
 		this.errorStatus = errorStatus;
 		this.errorTime = errorTime;
 	}
-	
-	
 
 }

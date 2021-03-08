@@ -1,5 +1,7 @@
 package com.example.demo.Model.Question;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -9,19 +11,25 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="category_master")
-public class Category {
-	
+@Table(name = "category_master")
+public class Category implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	public int category_id;
-	
+
 	@Enumerated(EnumType.STRING)
 	private EQuestionCategory name;
 
-	public Category() {}
-	
+	public Category() {
+	}
+
 	public Category(EQuestionCategory name) {
-		
+
 		this.name = name;
 	}
 
@@ -41,7 +49,4 @@ public class Category {
 		this.name = category_name;
 	}
 
-	
-	
-	
 }

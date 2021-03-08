@@ -1,7 +1,5 @@
 package com.example.demo.Service;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.securityContext;
-
 import java.sql.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -37,8 +35,8 @@ import Utility.GlobalConstants;
 import io.jsonwebtoken.ExpiredJwtException;
 
 @Service
-public class UserService{
-	
+public class UserService {
+
 	@Autowired
 	UserRepository userRepo;
 
@@ -47,46 +45,46 @@ public class UserService{
 
 	@Autowired
 	RoleRepository roleRepo;
-	
+
 	@Autowired
 	JwtUtility jwtUtils;
 
 	@Autowired
 	AuthenticationManager authManager;
-	
+
 	@Autowired
 	CustomUserDetailsService service;
 
 	private Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	
-	/**
-	 * This method used to register new user.
-	 * @return
-	 */
-	public Iterable<User> getAllUser(){
+
+	public Iterable<User> getAllUser() {
 		return userRepo.findAll();
 	}
-											
+
 	public User getUserByEmail(String emailId) {
-		return userRepo.getUserByEmail(emailId);		
-		
+		return userRepo.getUserByEmail(emailId);
 	}
 
-	public ResponseEntity<?> registerUser(RegisterRequest register){
+	/**
+	 * This method is to save/register new user.
+	 * 
+	 * @param register
+	 * @return
+	 */
+	public ResponseEntity<?> registerUser(RegisterRequest register) {
 
 		User tempUser = userRepo.getUserByEmail(register.getEmail());
 		if (tempUser != null) {
-
 			return ResponseEntity.badRequest().body(GlobalConstants.EMAIL_ALREADY_EXIST);
 		}
-		if (!(register.getFirstName().matches(GlobalConstants.ONLY_ALPHABET_REGEX) && register.getLastName().matches(GlobalConstants.ONLY_ALPHABET_REGEX))) {
+		if (!(register.getFirstName().matches(GlobalConstants.ONLY_ALPHABET_REGEX)
+				&& register.getLastName().matches(GlobalConstants.ONLY_ALPHABET_REGEX))) {
 			return ResponseEntity.badRequest().body(GlobalConstants.ONLY_ALPHABET);
 
 		}
-		String firstName = register.getFirstName().replaceAll(GlobalConstants.TRIM_SPACES_REGEX, "");
-
 		User user = new User(register.getFirstName().replaceAll(GlobalConstants.TRIM_SPACES_REGEX, ""),
-				register.getLastName().replaceAll(GlobalConstants.TRIM_SPACES_REGEX, ""), register.getEmail().replaceAll(GlobalConstants.TRIM_SPACES_REGEX, ""),
+				register.getLastName().replaceAll(GlobalConstants.TRIM_SPACES_REGEX, ""),
+				register.getEmail().replaceAll(GlobalConstants.TRIM_SPACES_REGEX, ""),
 				encoder.encode(register.getPassword()));
 
 		Set<String> striRole = register.getRole();
@@ -108,9 +106,8 @@ public class UserService{
 							.orElseThrow(() -> new RuntimeException("No Admin Role is Found"));
 					roleSet.add(adminRole);
 					LOG.log(Level.INFO, "This is the buffer ");
-					
-				}else {
-				
+
+				} else {
 
 					Role userRole = roleRepo.findByName(EAuthRoles.ROLE_USER)
 							.orElseThrow(() -> new RuntimeException("No User Role is found"));
@@ -120,50 +117,41 @@ public class UserService{
 			});
 		}
 		user.setRoles(roleSet);
-		
+
 		long millis = System.currentTimeMillis();
 
 		Date date = new Date(millis);
 
-		user.setCreatedAt(date);
+		user.setCreated_at(date);
 
 		userRepo.save(user);
 
 		return ResponseEntity.ok(GlobalConstants.REGISTER_SUCCESS);
 	}
-	
-
-	
 
 	/**
 	 * This method is used to authenticate user.
+	 * 
 	 * @param loginRequest
 	 * @return
 	 */
-	public ResponseEntity<?> authenticateUser(LoginRequest loginRequest){
+	public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
 		UsernamePasswordAuthenticationToken userPassAuth = new UsernamePasswordAuthenticationToken(
 				loginRequest.getEmail(), loginRequest.getPassword());
 		Authentication authentication;
 		try {
 			authentication = authManager.authenticate(userPassAuth);
-
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 			String jwtAccessToken = jwtUtils.generateJwtToken(userDetails);
 			String jwtRefreshToken = jwtUtils.generateJwtRefreshToken(userDetails);
-
 			java.util.Date jwtExpiration = jwtUtils.getJwtExpiration(jwtAccessToken);
-
-			Long current = System.currentTimeMillis();
-			java.util.Date currentTime = new java.util.Date(current);
-
-			
-
 			List<String> roles = userDetails.getAuthorities().stream().map(role -> role.getAuthority())
 					.collect(Collectors.toList());
 
-			return ResponseEntity.ok(new JwtResponse(jwtAccessToken,jwtRefreshToken, userDetails.getUser_id(), userDetails.getFirst_name(),
-					userDetails.getLast_name(), userDetails.getEmail(), jwtExpiration, roles));
+			return ResponseEntity.ok(new JwtResponse(jwtAccessToken, jwtRefreshToken, userDetails.getUser_id(),
+					userDetails.getFirst_name(), userDetails.getLast_name(), userDetails.getEmail(), jwtExpiration,
+					roles));
 
 		} catch (BadCredentialsException e) {
 			User user = userRepo.getUserByEmail(loginRequest.getEmail());
@@ -172,37 +160,28 @@ public class UserService{
 			} else {
 				return ResponseEntity.badRequest().body(GlobalConstants.WRONG_CREDENTIALS);
 			}
-
 		}
 	}
 
-	public ResponseEntity<?> refreshToken(String requestToken){
+	/**
+	 * This method is to get refresh tokens.
+	 * 
+	 * @param requestToken
+	 * @return
+	 */
+	public ResponseEntity<?> refreshToken() {
 		String accessToken = null;
 		String refreshToken = null;
 		AuthenticationResponse authResponse = null;
 		try {
-			
-		if(!requestToken.isEmpty() && jwtUtils.isJwtValid(requestToken)) {
-			String userEmail = jwtUtils.getEmailFromJwtTokens(requestToken);
-			
-			CustomUserDetails user = (CustomUserDetails)service.loadUserByUsername(userEmail);
-			
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			
-			Authentication newAuthentication = new UsernamePasswordAuthenticationToken(
-					user.getEmail(), authentication.getCredentials(), user.getAuthorities());
-			LOG.log(Level.INFO,"This is "+ newAuthentication.isAuthenticated());
+			CustomUserDetails user = (CustomUserDetails) service.loadUserByUsername(authentication.getName());
+			Authentication newAuthentication = new UsernamePasswordAuthenticationToken(user.getEmail(),
+					authentication.getCredentials(), user.getAuthorities());
 			SecurityContextHolder.getContext().setAuthentication(newAuthentication);
-			
 			accessToken = jwtUtils.generateJwtToken(user);
-			
 			refreshToken = jwtUtils.generateJwtRefreshToken(user);
-			LOG.log(Level.INFO,"This is "+ accessToken);
 			authResponse = new AuthenticationResponse(accessToken, refreshToken);
-		//	LOG.log(Level.INFO,"This is "+ authResponse);
-			
-		}else ResponseEntity.badRequest().body("Invalid Token");
-
 		} catch (ExpiredJwtException e) {
 			ResponseEntity.badRequest().body("Token Expired");
 		}

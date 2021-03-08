@@ -7,6 +7,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OptionSelection implements Serializable{
 
+	@Override
+	public String toString() {
+		return "OptionSelection [option=" + option + ", answer=" + answer + "]";
+	}
 	/**
 	 * 
 	 */

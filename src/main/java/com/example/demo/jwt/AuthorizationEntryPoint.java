@@ -18,11 +18,12 @@ public class AuthorizationEntryPoint implements AuthenticationEntryPoint {
 
 	private Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	
+	/**
+	 * Entry point of the server request.
+	 */
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-	//	LOG.log(Level.INFO , "This is the commencement");
-		
 		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "ERROR: UnAuthorized Response");
 		
 	}

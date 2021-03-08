@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RecaptchaUtil {
-
+	
+	/**
+	 * For handling errors in ReCaptcha verification.
+	 */
 	public static final Map<String, String> RECAPTCHA_ERROR_CODE = new HashMap<>();
     static {
     	RECAPTCHA_ERROR_CODE.put("missing-input-secret", 

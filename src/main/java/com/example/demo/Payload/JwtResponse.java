@@ -34,11 +34,11 @@ public class JwtResponse implements Serializable{
 
 	private List<String> role;
 
-	public JwtResponse(String token, String refreshToken, int id, String email, String first_name, String last_name,
+	public JwtResponse(String token, String refreshToken, int id, String first_name, String last_name, String email, 
 			Date expireTime, List<String> role) {
 		super();
 		this.token = token;
-		this.setRefreshToken(refreshToken);
+		this.refreshToken = refreshToken;
 		this.id = id;
 		this.email = email;
 		this.first_name = first_name;

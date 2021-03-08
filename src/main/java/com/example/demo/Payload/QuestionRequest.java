@@ -123,6 +123,15 @@ public class QuestionRequest {
 	public void setType(String type) {
 		this.questionType = type;
 	}
+
+	@Override
+	public String toString() {
+		return "QuestionRequest [question=" + question + ", questionType=" + questionType + ", isScored=" + isScored
+				+ ", instructions=" + instructions + ", category=" + category + ", option=" + option + ", booleanOne="
+				+ booleanOne + ", booleanTwo=" + booleanTwo + ", booleanRadio=" + booleanRadio + "]";
+	}
+
+
 	
 
 	

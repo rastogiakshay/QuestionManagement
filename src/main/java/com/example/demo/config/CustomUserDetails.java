@@ -9,12 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.demo.Model.User;
 
-import io.jsonwebtoken.lang.Objects;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class CustomUserDetails implements UserDetails {
 	
 	private static final long serialVersionUID = 1L;
@@ -38,13 +33,17 @@ public class CustomUserDetails implements UserDetails {
 		this.authorities = auth;
 	}
 	
-	// Extracting role of every login.
+	/**
+	 * Building UserDetails with authorities. 
+	 * @param user
+	 * @return
+	 */
 	public static CustomUserDetails buildIt(User user) {
 		List<GrantedAuthority> authorities = user.getRoles().stream()
 				.map(role -> new SimpleGrantedAuthority(role.getName().name()))
 				.collect(Collectors.toList());
 		
-		return new CustomUserDetails(user.getId(),
+		return new CustomUserDetails(user.getUserId(),
 				user.getFirstName(),
 				user.getLastName(),
 				user.getEmail(),

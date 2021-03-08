@@ -1,7 +1,5 @@
 package com.example.demo.jwt;
 
-
-
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,74 +21,90 @@ import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 public class JwtUtility {
-	
+
 	private Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	
+
 	@Value("${example.app.jwtSecret}")
 	private String jwtSecret;
-	
+
 	@Value("${example.app.jwtExpiration}")
 	private int jwtExpiration;
-	
+
 	@Value("${example.app.jwtRefreshTime}")
 	private int jwtRefreshTime;
-	
+
 	@Autowired
 	private CustomUserDetailsService userDetailsService;
-	
-	
-		public String generateJwtToken(CustomUserDetails userPrincpal) {
-			
-			
-			//CustomUserDetails userPrincpal = (CustomUserDetails)userDetailsService.loadUserByUsername(authentication.getPrincipal().toString());
-			LOG.log(Level.INFO,"User is "+ userPrincpal.getUsername());
-		return Jwts.builder().setSubject((userPrincpal.getUsername()))
-							.setIssuedAt(new Date())
-							.setExpiration(new Date((new Date()).getTime() + jwtExpiration))
-							.signWith(SignatureAlgorithm.HS512, jwtSecret)
-							.compact();
+
+	/**
+	 * this method will generate access token.
+	 * 
+	 * @param userPrincpal
+	 * @return
+	 */
+	public String generateJwtToken(CustomUserDetails userPrincpal) {
+
+		return Jwts.builder().setSubject((userPrincpal.getUsername())).setIssuedAt(new Date())
+				.setExpiration(new Date((new Date()).getTime() + jwtExpiration))
+				.signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
 	}
-	
-		public String generateJwtRefreshToken(CustomUserDetails userPrincipal) {
-		//	CustomUserDetails userPrincipal = (CustomUserDetails)authentication.getPrincipal();
-		
-		return Jwts.builder().setSubject((userPrincipal.getUsername()))
-				.setIssuedAt(new Date())
+
+	/**
+	 * This method will generate refresh token.
+	 * 
+	 * @param userPrincipal
+	 * @return
+	 */
+	public String generateJwtRefreshToken(CustomUserDetails userPrincipal) {
+		return Jwts.builder().setSubject((userPrincipal.getUsername())).setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtRefreshTime))
-				.signWith(SignatureAlgorithm.HS512, jwtSecret)
-				.compact();
+				.signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
 	}
-	
+
+	/**
+	 * This will extract expiration time from generated token.
+	 * 
+	 * @param token
+	 * @return
+	 */
 	public Date getJwtExpiration(String token) {
 		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getExpiration();
 	}
-	
-	
-	
+
+	/**
+	 * This method will extract email from token
+	 * 
+	 * @param token
+	 * @return
+	 */
 	public String getEmailFromJwtTokens(String token) {
 		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
 	}
-	
-	
+
+	/**
+	 * This will check the validation of token.
+	 * 
+	 * @param authToken
+	 * @return
+	 */
 	public boolean isJwtValid(String authToken) {
 		try {
-	//		LOG.log(Level.INFO, "The value of authTOKEN is "+ authToken);
 			Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
 			return true;
-		}catch (SignatureException e) {
-			LOG.log(LOG.getLevel().INFO,"Signature Exception " + e.getMessage());
-		}catch (IllegalArgumentException e) {
+		} catch (SignatureException e) {
+			LOG.log(LOG.getLevel().INFO, "Signature Exception " + e.getMessage());
+		} catch (IllegalArgumentException e) {
 
-			LOG.log(LOG.getLevel().INFO,"IlliegalArgument Exception " + e.getMessage());
-		}catch(ExpiredJwtException e) {
+			LOG.log(LOG.getLevel().INFO, "IlliegalArgument Exception " + e.getMessage());
+		} catch (ExpiredJwtException e) {
 
-			LOG.log(LOG.getLevel().INFO,"Expired JWT Exception " + e.getMessage());
-		}catch (MalformedJwtException e) {
+			LOG.log(LOG.getLevel().INFO, "Expired JWT Exception " + e.getMessage());
+		} catch (MalformedJwtException e) {
 
-			LOG.log(LOG.getLevel().INFO,"Malformed JWT Exception " + e.getMessage());
-		}catch (UnsupportedJwtException e) {
+			LOG.log(LOG.getLevel().INFO, "Malformed JWT Exception " + e.getMessage());
+		} catch (UnsupportedJwtException e) {
 
-			LOG.log(LOG.getLevel().INFO,"Unsupported Exception " + e.getMessage());
+			LOG.log(LOG.getLevel().INFO, "Unsupported Exception " + e.getMessage());
 		}
 		return false;
 	}

@@ -67,7 +67,6 @@ public class UserController {
 	 * @param register
 	 * @return
 	 */
-	
 	@PostMapping("/register")
 	@Transactional
 	public ResponseEntity<?> registerUser(@RequestBody RegisterRequest register) {
@@ -79,8 +78,8 @@ public class UserController {
 	 * @return
 	 */
 	@GetMapping("/refresh")
-	public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) {
-		return userService.refreshToken(refreshToken);
+	public ResponseEntity<?> refreshToken() {
+		return userService.refreshToken();
 
 	}
 

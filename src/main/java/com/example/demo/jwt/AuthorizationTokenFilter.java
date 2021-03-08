@@ -19,57 +19,59 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.demo.config.CustomUserDetailsService;
 
-public class AuthorizationTokenFilter extends OncePerRequestFilter{
-	
+public class AuthorizationTokenFilter extends OncePerRequestFilter {
+
 	private Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	@Autowired
 	private JwtUtility jwtUtils;
-	
+
 	@Autowired
 	private CustomUserDetailsService userService;
 	
-	
-	
-
+	/**
+	 * This method will filter the request for generating and assigning JWT to the user. 
+	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-				LOG.log(Level.INFO, "the request is " + request);
+		
 		try {
 			String jwtAuthToken = parseJwt(request);
-			
-			if(jwtAuthToken != null && jwtUtils.isJwtValid(jwtAuthToken)) {
+
+			if (jwtAuthToken != null && jwtUtils.isJwtValid(jwtAuthToken)) {
 				String email = jwtUtils.getEmailFromJwtTokens(jwtAuthToken);
 
 				UserDetails userDetails = userService.loadUserByUsername(email);
-				
-				UsernamePasswordAuthenticationToken authToken =  new UsernamePasswordAuthenticationToken(email,null, userDetails.getAuthorities());
-				
+
+				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null,
+						userDetails.getAuthorities());
+
 				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				
+
 				SecurityContextHolder.getContext().setAuthentication(authToken);
-				
-			}			
-			
-		}catch (Exception e) {
+
+			}
+
+		} catch (Exception e) {
 
 		}
-		
-		
-		filterChain.doFilter(request, response);
-		
-		
-	}
 
+		filterChain.doFilter(request, response);
+
+	}
+	
+	/**
+	 * it will remove all unwanted headers from the string.
+	 * @param requestToParse
+	 * @return
+	 */
 	public String parseJwt(HttpServletRequest requestToParse) {
 		String requestedHeaderAuth = requestToParse.getHeader("Authorization");
-		
-		if(StringUtils.hasText(requestedHeaderAuth) && requestedHeaderAuth.startsWith("Bearer ")) {
+
+		if (StringUtils.hasText(requestedHeaderAuth) && requestedHeaderAuth.startsWith("Bearer ")) {
 			return requestedHeaderAuth.substring(7, requestedHeaderAuth.length());
 		}
 		return null;
 	}
-	
-	
-	
+
 }

@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,7 @@ import com.example.demo.Model.Question.Options;
 import com.example.demo.Model.Question.Question;
 import com.example.demo.Model.Question.Type;
 import com.example.demo.POJO.OptionSelection;
+import com.example.demo.POJO.PageDetails;
 import com.example.demo.Payload.QuestionRequest;
 import com.example.demo.Payload.QuestionResponse;
 import com.example.demo.Repository.CategoryRepository;
@@ -48,45 +50,56 @@ import com.example.demo.jwt.JwtUtility;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/question")
 public class QuestionController {
-	
-	
+
 	private Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	
+
 	@Autowired
 	AuthenticationManager authManager;
-	
+
 	@Autowired
 	UserRepository userRepo;
-	 
+
 	@Autowired
 	JwtUtility jwtUtils;
-	
+
 	@Autowired
 	QuestionRepository questionRepo;
-	
+
 	@Autowired
 	CategoryRepository categoryRepo;
-	
+
 	@Autowired
 	OptionRepository optRepo;
-	
+
 	@Autowired
 	QuestionService questionService;
-		
+
 	private Category questCategory;
-	
+
 	@Autowired
 	private TypeRepository typeRepo;
-	
+
 	/**
+	 * getting questions in List form.
 	 * 
 	 * @return
 	 */
 	@GetMapping("/show")
-	public List<QuestionResponse> getQuestion(){
-	return questionService.getQuestions();
+	public List<QuestionResponse> getQuestion() {
+		return questionService.getQuestions();
 	}
-	
+
+	/**
+	 * getting questions in pages.
+	 * 
+	 * @param pageDetails
+	 * @return
+	 */
+	@GetMapping("/showall/{page}")
+	public ResponseEntity getPagedQuestions(@PathVariable("page") int pageDetails) {
+		return ResponseEntity.ok().body(questionService.getAllQuestions(pageDetails));
+	}
+
 	/**
 	 * this method is used in fetching question by id.
 	 * 
@@ -97,60 +110,64 @@ public class QuestionController {
 	public Question getQuestionById(@PathVariable("id") int id) {
 		return questionService.getQuestionById(id);
 	}
-	 
 
 	@GetMapping("/all")
 	public String testingPage() {
 		return "This is the testing page";
 	}
-	
+
 	/**
-	 * This method is used in deleting question by id.
+	 * Deleting questions by Id.
+	 * 
 	 * @param id
 	 */
 	@DeleteMapping(path = "/{id}")
 	public void deleteQuestion(@PathVariable("id") int id) {
 		questionService.deleteQuestion(id);
-		
+
 	}
 
 	/**
 	 * This method is use for updating question by id.
+	 * 
 	 * @param id
 	 * @param questionRequest
 	 * @return
 	 */
 	@PutMapping(path = "/update/{id}")
-	public ResponseEntity<?> updateQuestion(@PathVariable("id") int id, @RequestBody QuestionRequest questionRequest){
+	public ResponseEntity<?> updateQuestion(@PathVariable("id") int id, @RequestBody QuestionRequest questionRequest) {
 		return questionService.updateQuestions(id, questionRequest);
 	}
-	
+
 	/**
 	 * This method is use for saving questions.
+	 * 
 	 * @param questionRequest
 	 * @return
 	 */
 	@PostMapping("/save-quest")
 	@Transactional
-	public ResponseEntity<Object> saveQuestion(@RequestBody QuestionRequest questionRequest){
+	public ResponseEntity<Object> saveQuestion(@RequestBody QuestionRequest questionRequest) {
 		return questionService.save(questionRequest);
 	}
 
 	/**
 	 * This method is used for fetching categories of questions.
+	 * 
 	 * @return
 	 */
 	@GetMapping("/category")
-	public List<Category> getCategory(){
+	public List<Category> getCategory() {
 		return questionService.getCategorys();
 	}
-	
+
 	/**
 	 * This method is used for fetching types of questions.
+	 * 
 	 * @return
 	 */
 	@GetMapping("/type")
-	public List<Type> getType(){
+	public List<Type> getType() {
 		return questionService.getTypes();
 	}
 }
