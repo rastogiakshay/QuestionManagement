@@ -24,7 +24,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
 	private List<String> errorsList = new ArrayList<>();
 
-	@Override
+
 	protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		errorsList.add(ex.getMessage());
@@ -33,7 +33,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(errors);
 	}
 
-	@Override
+
 	protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		errorsList.add(ex.getMessage());
@@ -41,7 +41,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(errors);
 	}
 
-	@Override
+
 	protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
 		errorsList.add(ex.getMessage());
@@ -49,7 +49,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(errors);
 	}
 
-	@Override
+
 	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		errorsList.add(ex.getMessage());
@@ -57,7 +57,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(errors);
 	}
 
-	@Override
+
 	protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
 		errorsList.add(ex.getMessage());
@@ -65,7 +65,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(errors);
 	}
 
-	@Override
+
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		errorsList.add(ex.getMessage());
@@ -73,7 +73,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(errors);
 	}
 
-	@Override
+
 	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
 			HttpStatus status, WebRequest request) {
 		errorsList.add(ex.getMessage());
